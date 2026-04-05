@@ -1,0 +1,81 @@
+# Humanizer tells — patterns that FAKE-human rewriters introduce.
+# Modern detectors (ZeroGPT 2025, Grammarly, Originality.ai Turbo) are
+# trained on humanizer tool output. These patterns now flag AS AI.
+#
+# Matched as lowercase substrings. Be very cautious with these.
+
+# --- Forced casual markers (stand-out when in professional context) ---
+honestly, i
+i'll be real
+i'll be honest
+let me be real
+let me be honest
+let's be real
+let's be honest
+i guess
+so i guess
+i mean,
+i gotta say
+gotta admit
+not gonna lie
+tbh
+truth be told
+real talk
+
+# --- Fake-relatability phrases ---
+probably unhealthy amount
+unhealthy amount of time
+obscene amount
+embarrassingly long
+embarrassingly bad
+stupid amount
+ridiculous amount of
+a ton of
+spent a ton
+way too much time
+
+# --- Humanizer-tool conjunctions and fillers ---
+basically,
+literally,
+like literally
+kind of,
+sort of,
+kinda
+sorta
+you know,
+y'know
+
+# --- Meta-commentary (AI trying to sound self-aware) ---
+so i guess it paid off
+i guess it worked
+paid off i guess
+for what it's worth
+for whatever it's worth
+if that makes sense
+does that make sense
+
+# --- Forced-fragment openers (when used as a pattern) ---
+# Note: these are contextual — a single fragment is fine. A RUN of them
+# is the tell. The scorer detects the pattern below.
+
+# --- Humanizer-tool filler phrases ---
+at the risk of sounding
+if i'm being
+to be completely honest
+to be fair
+full disclosure
+little secret
+dirty little secret
+plot twist
+spoiler alert
+
+# --- "Humanized" transitions that replaced the old AI transitions ---
+here's the thing though
+here's the thing
+thing is
+the thing is
+look,
+look here's
+alright so
+okay so
+ok so

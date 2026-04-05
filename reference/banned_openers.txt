@@ -1,0 +1,48 @@
+# Sentence openers that flag as AI. Matched lowercase at sentence start.
+
+furthermore
+moreover
+additionally
+notably
+importantly
+consequently
+subsequently
+alternatively
+conversely
+nevertheless
+nonetheless
+accordingly
+essentially
+ultimately
+crucially
+interestingly
+remarkably
+significantly
+admittedly
+in essence
+in particular
+in other words
+as a result
+as such
+that being said
+broadly speaking
+simply put
+to clarify
+to illustrate
+moving forward
+going forward
+by the same token
+here's the thing
+here's the kicker
+the bottom line
+the best part
+what makes this
+what sets
+let me explain
+let's break this down
+in today's
+in the realm
+in conclusion
+in summary
+to summarize
+at the end of the day

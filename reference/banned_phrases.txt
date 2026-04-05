@@ -1,0 +1,122 @@
+# Banned phrases — matched as lowercase substrings.
+# Sources: Pangram Labs overuse ratios, GPTZero, WikiProject AI Cleanup.
+
+# Significance inflation
+it is important to note that
+it's important to note that
+it is worth noting that
+it's worth noting that
+it is crucial to understand
+plays a crucial role
+plays a significant role
+plays a vital role
+plays a key role
+cannot be overstated
+a testament to
+serves as a testament
+serves as a reminder
+underscores the importance
+highlights the need for
+represents a significant shift
+marking a pivotal moment
+emphasizing the significance
+a powerful reminder
+reminder of the enduring
+faced numerous challenges
+provides new insights into
+providing valuable insights
+into the complex interplay
+vibrant tapestry
+rich tapestry
+intricate nature
+notable works include
+play a significant role in shaping
+
+# Temporal / contextual framing
+in today's rapidly evolving
+in today's digital age
+in today's fast-paced world
+in today's world
+in today's society
+in an era of
+in the ever-evolving
+in the realm of
+in the dynamic world
+as we navigate the complexities
+
+# Opening gambits
+let's dive in
+let's delve into
+embark on a journey
+unlock the secrets of
+navigating the complexities
+delving into the intricacies
+
+# Hedging / disclaimers
+based on the information provided
+while it is true that
+it is advisable to
+one of the most important things to consider
+as of my last training
+as of my last update
+while specific details are limited
+based on available information
+
+# Conclusions
+in conclusion
+in summary
+to summarize
+at the end of the day
+key takeaways include
+the bottom line is
+that being said
+moving forward
+going forward
+at its core
+in essence
+
+# Corporate / marketing
+cutting-edge solutions
+actionable insights
+innovative solutions
+paradigm shift
+unlock the potential
+revolutionize the way
+game changer
+transforming the way
+from inception to execution
+
+# Servile / chatbot artifacts
+i hope this helps
+let me know if
+great question
+certainly!
+of course!
+you're absolutely right
+would you like
+here is a
+here's a comprehensive
+
+# Negative parallelism
+not only
+it's not just
+it's not merely
+not merely a
+
+# Wh-cleft / false profundity
+what makes this
+what sets this apart
+here's the thing
+here's the kicker
+the best part
+here's what
+here's why
+
+# Present participial tailing patterns
+highlighting the
+emphasizing the
+reflecting the
+symbolizing the
+contributing to the
+fostering a
+cultivating a
