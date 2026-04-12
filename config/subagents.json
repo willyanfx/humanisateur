@@ -1,0 +1,55 @@
+{
+  "_comment": "Per-role provider/model config for the script-bridged path. Edit roles[*].provider and roles[*].model to route each subagent to a different model. Set enabled=false on a role to skip it (the host LLM falls back to doing that role itself).",
+  "default_provider": "ollama",
+  "providers": {
+    "anthropic": {
+      "endpoint": "https://api.anthropic.com",
+      "api_key_env": "ANTHROPIC_API_KEY",
+      "format": "anthropic"
+    },
+    "openai": {
+      "endpoint": "https://api.openai.com",
+      "api_key_env": "OPENAI_API_KEY",
+      "format": "openai"
+    },
+    "ollama": {
+      "endpoint": "http://localhost:11434",
+      "api_key_env": null,
+      "format": "ollama"
+    },
+    "lmstudio": {
+      "endpoint": "http://localhost:1234",
+      "api_key_env": null,
+      "format": "openai"
+    }
+  },
+  "roles": {
+    "scorer": {
+      "enabled": true,
+      "provider": "ollama",
+      "model": "phi3:mini",
+      "timeout_seconds": 20
+    },
+    "vocab-fixer": {
+      "enabled": true,
+      "provider": "ollama",
+      "model": "phi3:mini",
+      "timeout_seconds": 20,
+      "max_input_words": 2000
+    },
+    "stylist": {
+      "enabled": true,
+      "provider": "ollama",
+      "model": "llama3.1:8b",
+      "timeout_seconds": 60,
+      "max_input_words": 2000
+    },
+    "critic": {
+      "enabled": true,
+      "provider": "ollama",
+      "model": "llama3.1:8b",
+      "timeout_seconds": 30,
+      "max_input_words": 1500
+    }
+  }
+}

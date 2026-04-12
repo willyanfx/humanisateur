@@ -2,6 +2,19 @@
 
 All notable changes to humanisateur.
 
+## [0.4.0] - 2026-04-12
+
+### Added
+- Four specialized subagents (`humanisateur:scorer`, `humanisateur:vocab-fixer`, `humanisateur:stylist`, `humanisateur:critic`) defined in `agents/`
+- Native Claude Code plugin manifest at `.claude-plugin/plugin.json` so the subagents are auto-discovered and spawned via the Task tool
+- `scripts/subagent.py` bridge script for non-Claude environments (OpenAI, Gemini, Ollama, LM Studio, any OpenAI-compatible endpoint)
+- `config/subagents.json` for per-role provider/model routing — run mechanical roles cheap or local while only paying for the strong stylist when needed
+- The bridge script reads each role's system prompt directly from `agents/<role>.md`, so Path A and Path B share one source of truth for prompts
+
+### Changed
+- `SKILL.md` rewritten as orchestration logic that detects the environment and dispatches to subagents (Path A: Task tool, Path B: bridge script, fallback: inline)
+- Existing provider interface YAMLs moved from `agents/` to `provider-configs/` to free `agents/` for the markdown subagent definitions
+
 ## [0.3.0] - 2026-04-11
 
 ### Changed

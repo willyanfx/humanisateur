@@ -1,0 +1,4 @@
+{
+  "name": "humanisateur",
+  "description": "Authentic editing skill that uses specialized subagents to score, clean, rewrite, and critique drafts. Each subagent can be routed to a different model tier for cost and quality tradeoffs."
+}
