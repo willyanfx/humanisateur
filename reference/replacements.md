@@ -1,7 +1,7 @@
 # Replacement guide
 
 Pick from multiple options. Don't default to the same substitute every time —
-synonym-cycling is itself a detection signal.
+synonym-cycling is itself a stylistic tell.
 
 ## Top 30 offenders
 

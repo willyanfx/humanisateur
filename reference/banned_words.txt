@@ -1,6 +1,5 @@
-# Banned words — compiled from GPTZero AI Vocabulary Scanner, Pangram Labs
-# overuse ratios, Kobak et al. 2025 (Nature Human Behaviour, 1.1M papers),
-# Gray/UCL 2023, and Wikipedia WikiProject AI Cleanup.
+# Banned words — compiled from public overuse studies, cleanup projects,
+# Kobak et al. 2025 (Nature Human Behaviour, 1.1M papers), and editorial review.
 # One word per line, lowercase. Phrases go in banned_phrases.txt.
 
 # --- Tier 1: critical (10–48× overuse ratio) ---

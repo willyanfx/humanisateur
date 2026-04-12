@@ -1,5 +1,5 @@
 # Banned phrases — matched as lowercase substrings.
-# Sources: Pangram Labs overuse ratios, GPTZero, WikiProject AI Cleanup.
+# Compiled from public overuse lists, cleanup projects, and editorial review.
 
 # Significance inflation
 it is important to note that

@@ -1,4 +1,4 @@
-A friend runs operations at a 40-person logistics company in Hamilton. Last September she added Claude to her team's workflow for about $80 a month. Within six weeks, the customer-service backlog dropped from 3 days to under 4 hours.
+A friend runs operations at a 40-person logistics company in Hamilton. Last September she added an AI assistant to her team's workflow for about $80 a month. Within six weeks, the customer-service backlog dropped from 3 days to under 4 hours.
 
 That's the story.
 

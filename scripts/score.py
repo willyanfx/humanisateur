@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Humanizer Pro — detection-signal scorer.
+humanisateur - writing-pattern scorer.
 
-Computes the 7 signals that major AI detectors measure, using only the
-Python standard library. No external dependencies.
+Computes 7 signals associated with flat, overly generic, or overprocessed
+prose, using only the Python standard library. No external dependencies.
 
 Usage:
     python3 score.py <input_file>
@@ -200,7 +200,7 @@ def curly_quote_count(text: str) -> int:
     return sum(text.count(c) for c in "\u201c\u201d\u2018\u2019")
 
 def humanizer_tell_hits(text: str) -> dict:
-    """Count fake-human patterns that detectors now flag AS AI."""
+    """Count fake-casual patterns that often read as canned or overprocessed."""
     low = text.lower()
     hits = {}
     for tell in HUMANIZER_TELLS:
@@ -211,7 +211,7 @@ def humanizer_tell_hits(text: str) -> dict:
 
 def fragment_run_count(sents: list[str]) -> int:
     """Count runs of 2+ consecutive very short (<=4 word) sentences.
-    A RUN of fragments is a humanizer tic ('Five years at X. All Y.').
+    A RUN of fragments is an overprocessed tic ('Five years at X. All Y.').
     A single fragment is fine."""
     if len(sents) < 2: return 0
     lengths = [len(WORD_RE.findall(s)) for s in sents]
@@ -286,9 +286,8 @@ def score_voice(first_person: int, opinions: int, hedges: int, wc: int) -> int:
 def score_humanizer_penalty(humanizer_tells: int, fragment_runs: int,
                              wc: int) -> int:
     """
-    Separate penalty added to the TOTAL. Modern detectors (ZeroGPT 2025+,
-    Grammarly, Originality.ai Turbo) are trained on humanizer-tool output
-    and flag these patterns AS AI. This penalty captures that.
+    Separate penalty added to the TOTAL for fake-casual or obviously
+    overprocessed editing patterns.
     Returns 0–15 points added to the total score.
     """
     if wc == 0: return 0
@@ -296,7 +295,7 @@ def score_humanizer_penalty(humanizer_tells: int, fragment_runs: int,
     tell_pen = min(12, humanizer_tells * 3)
     # Fragment runs = 3 points each up to 6
     frag_pen = min(6, fragment_runs * 3)
-    # Density of tells matters more in short text
+    # Density matters more in short text, where a few canned phrases dominate.
     density_bonus = 0
     if wc < 150 and humanizer_tells >= 2:
         density_bonus = 3
@@ -366,11 +365,11 @@ def score_text(text: str) -> dict:
     total = s1 + s2 + s3 + s4 + s5 + s6 + s7 + humanizer_penalty
 
     # Scale: 7 signals × 10 = 70 + humanizer penalty max 15 = 85 max.
-    if   total <=18: verdict = "Very Likely Human"
-    elif total <=30: verdict = "Probably Human"
-    elif total <=42: verdict = "Mixed / Uncertain"
-    elif total <=54: verdict = "Probably AI"
-    else:            verdict = "Very Likely AI"
+    if   total <=18: verdict = "Natural Variation"
+    elif total <=30: verdict = "Light Revision"
+    elif total <=42: verdict = "Mixed / Needs Review"
+    elif total <=54: verdict = "Heavy Revision"
+    else:            verdict = "Extensive Revision Needed"
 
     return {
         "total": total,
@@ -428,7 +427,7 @@ def render_report(r: dict) -> str:
 
     lines = []
     lines.append("═" * 55)
-    lines.append("  HUMANISATEUR — DETECTION RISK REPORT")
+    lines.append("  HUMANISATEUR - WRITING PATTERN REPORT")
     lines.append("═" * 55)
     lines.append("")
     lines.append(f"  OVERALL SCORE: {r['total']} / 85   [{r['verdict']}]")
@@ -443,7 +442,7 @@ def render_report(r: dict) -> str:
         "S5_register_uniformity": "S5 Register Uniformity   ",
         "S6_specificity":         "S6 Specificity           ",
         "S7_voice":               "S7 Voice & Personality   ",
-        "H_humanizer_penalty":    "H  Humanizer Tells (pen) ",
+        "H_humanizer_penalty":    "H  Overprocessed Patterns ",
     }
     for k, v in sigs.items():
         cap = 15 if k == "H_humanizer_penalty" else 10
@@ -452,27 +451,27 @@ def render_report(r: dict) -> str:
     lines.append("")
     lines.append("  MEASURED:")
     lines.append(f"  • Words: {m['word_count']}  |  Sentences: {m['sentence_count']}  |  Paragraphs: {m['paragraph_count']}")
-    lines.append(f"  • Sentence length: mean={m['sentence_len_mean']}, std={m['sentence_len_std']}, range {m['sentence_len_min']}–{m['sentence_len_max']}  (target std > 8)")
-    lines.append(f"  • Paragraph length CV: {m['paragraph_len_cv']}  (target > 0.5)")
-    lines.append(f"  • Type-token ratio: {m['type_token_ratio']}  (target > 0.65)")
+    lines.append(f"  • Sentence length: mean={m['sentence_len_mean']}, std={m['sentence_len_std']}, range {m['sentence_len_min']}–{m['sentence_len_max']}  (higher variance usually reads less monotonous)")
+    lines.append(f"  • Paragraph length CV: {m['paragraph_len_cv']}  (higher usually means less uniform paragraphs)")
+    lines.append(f"  • Type-token ratio: {m['type_token_ratio']}  (higher usually means less repetition)")
     lines.append(f"  • Banned words: {hits['word_total']} ({m['banned_words_per_500']}/500 words)")
     lines.append(f"  • Banned phrases: {hits['phrase_total']} ({m['banned_phrases_per_500']}/500 words)")
     lines.append(f"  • Banned openers: {hits['opener_total']}")
-    lines.append(f"  • Contractions: {m['contractions_per_100']}/100 words  (target ≈ 2)")
-    lines.append(f"  • First-person: {m['first_person_count']} ({m['first_person_per_500']}/500 words, target 3+)")
+    lines.append(f"  • Contractions: {m['contractions_per_100']}/100 words  (depends on register)")
+    lines.append(f"  • First-person: {m['first_person_count']} ({m['first_person_per_500']}/500 words, context-dependent)")
     lines.append(f"  • Opinion markers: {m['opinion_marker_count']}  |  Hedges: {m['hedge_count']}")
-    lines.append(f"  • Em dashes: {m['em_dash_count']} ({m['em_dashes_per_500']}/500 words, target ≤ 1)")
+    lines.append(f"  • Em dashes: {m['em_dash_count']} ({m['em_dashes_per_500']}/500 words, keep restrained in formal copy)")
     lines.append(f"  • Proper nouns: {m['proper_noun_count']}  |  Numbers: {m['number_count']}")
     lines.append(f"  • Curly quotes: {m['curly_quote_count']}  |  Bold: {m['bold_markers']}  |  Emojis: {m['emoji_count']}")
 
     tells = r.get("humanizer_tells", {})
     if tells:
         lines.append("")
-        lines.append("  ⚠ HUMANIZER TELLS FOUND (these flag AS AI on modern detectors):")
+        lines.append("  ⚠ HUMANIZER TELLS FOUND (these often read as canned or overprocessed):")
         for t, n in sorted(tells.items(), key=lambda x: -x[1]):
             lines.append(f"  • \"{t}\" ({n}×)")
     if m.get("fragment_run_count", 0) > 0:
-        lines.append(f"  ⚠ Fragment runs: {m['fragment_run_count']} (choppy-opener humanizer pattern)")
+        lines.append(f"  ⚠ Fragment runs: {m['fragment_run_count']} (choppy fragment pattern)")
 
     if hits["words"]:
         top = sorted(hits["words"].items(), key=lambda x: -x[1])[:12]
@@ -495,7 +494,7 @@ def render_report(r: dict) -> str:
     return "\n".join(lines)
 
 def main():
-    ap = argparse.ArgumentParser(description="Humanizer Pro scoring")
+    ap = argparse.ArgumentParser(description="humanisateur writing-pattern scoring")
     ap.add_argument("input", nargs="?", help="input file path, or - for stdin")
     ap.add_argument("--text", help="inline text to score")
     ap.add_argument("--json", action="store_true", help="output raw JSON")

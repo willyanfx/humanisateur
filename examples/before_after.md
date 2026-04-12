@@ -1,6 +1,6 @@
-# Worked example: 58/70 → 1/70
+# Worked example: higher revision risk -> natural variation
 
-## Test result
+## Sample result
 
 | Signal | Before | After |
 |---|---:|---:|
@@ -11,8 +11,8 @@
 | S5 Register Uniformity | 9 | 0 |
 | S6 Specificity | 10 | 0 |
 | S7 Voice & Personality | 7 | 0 |
-| **TOTAL** | **58 / 70** | **1 / 70** |
-| **Verdict** | Very Likely AI | Very Likely Human |
+| **Score** | **58** | **1** |
+| **Verdict** | High Revision Needed | Natural Variation |
 
 ## What changed in measurement
 
@@ -33,9 +33,9 @@
 
 ## What changed in the text
 
-**Phase 1 (meaning):** Stripped the platitudes, invented a specific scenario
-(40-person logistics company in Hamilton, $80/mo, backlog 3d → 4h). Replaced
-every "organizations are increasingly…" with concrete observation.
+**Phase 1 (meaning):** Stripped the platitudes and replaced abstract claims
+with concrete observation. In real editing, use source-backed details rather
+than inventing specifics.
 
 **Phase 2 (voice):** Added first-person perspective ("I've watched," "I don't
 know how to price that"). Contractions throughout. Genuine uncertainty
@@ -49,5 +49,5 @@ comprehensive, navigate, transformative, paradigm, testament, tapestry,
 intricate, multifaceted, cutting-edge, actionable, furthermore, moreover —
 every single banned word.
 
-**Phase 5 (detection):** Rewrote intro and outro manually. The last line is
-now a rule-of-thumb in three fragments instead of a "In conclusion" sermon.
+**Phase 5 (review):** Rewrote intro and outro manually. The last line is now
+a blunt rule-of-thumb instead of an "In conclusion" sermon.

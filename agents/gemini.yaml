@@ -1,0 +1,5 @@
+interface:
+  display_name: "Humanisateur"
+  short_description: "Edit drafts to sound clearer and less generic."
+  default_prompt: "Use $humanisateur to revise this draft so it reads more naturally without changing the meaning."
+  provider: gemini

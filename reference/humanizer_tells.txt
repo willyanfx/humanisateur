@@ -1,6 +1,5 @@
-# Humanizer tells — patterns that FAKE-human rewriters introduce.
-# Modern detectors (ZeroGPT 2025, Grammarly, Originality.ai Turbo) are
-# trained on humanizer tool output. These patterns now flag AS AI.
+# Humanizer tells — patterns that fake-casual rewriters often introduce.
+# These patterns usually read as canned, overprocessed, or obviously forced.
 #
 # Matched as lowercase substrings. Be very cautious with these.
 

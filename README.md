@@ -1,58 +1,50 @@
 # humanisateur
 
-A detection-aware text rewriter that rewrites AI-generated text to pass AI-detection tools (GPTZero, ZeroGPT, Originality.ai, Turnitin, Copyleaks, Grammarly).
+`humanisateur` is an editing skill for drafts that read as generic, stiff, or obviously overworked. It pairs a portable `SKILL.md` workflow with a small Python scorer that flags filler, stale phrasing, and the fake-casual tics that "humanizer" tools tend to leave behind.
 
-It is packaged as a Claude Code / Claude Agent SDK **skill**, with an executable Python scorer that measures the statistical signals detectors actually use — then applies a length-aware, context-aware rewrite protocol that **avoids the fake-human patterns modern detectors now train on**.
+The point: clearer writing, better matched to its audience, without padding or invented detail.
 
-## What makes this different
+## What it does
 
-Most "humanizer" tools introduce their own tells — forced casual markers ("honestly," "I guess"), fake relatability ("probably unhealthy amount"), choppy fragment runs. Modern detectors (ZeroGPT 2025+, Grammarly, Originality.ai Turbo) are trained on that output and flag it AS AI.
+The skill checks drafts for structural monotony, canned vocabulary, filler, and overprocessed voice. It scales the edit by word count using four protocols (`MICRO`, `LIGHT`, `STANDARD`, `FULL`) and adjusts tone by register, covering professional, academic, marketing, personal, and casual contexts. Short passages that already read cleanly aren't touched more than necessary.
 
-humanisateur:
-- Measures 7 detection signals + a humanizer-tell penalty before touching the text
-- Gates the rewrite protocol by length (MICRO / LIGHT / STANDARD / FULL)
-- Gates voice injection by register (professional bio / academic / blog / personal / casual)
-- Refuses to inflate length, invent facts, or add content to hit a word target
+The scorer is diagnostic only. It flags patterns that make prose feel flat or mechanically rewritten. It doesn't promise anything about authorship or detector outcomes.
 
 ## Install
 
+The quickest way to install is through [skills.sh](https://skills.sh/):
+
 ```bash
-git clone https://github.com/willyanfx/humanisateur.git
-cd humanisateur
+npx skills add humanisateur/humanisateur
 ```
 
-Drop the folder into your Claude skills directory, or invoke `SKILL.md` directly.
+This works across providers and handles placement automatically.
+
+For manual setup, humanisateur works with any AI coding assistant that supports local skills or custom instructions. Point your tool at this folder; the specifics depend on your provider:
+
+- **Claude Code / Cowork:** symlink or copy to `~/.claude/skills/humanisateur`.
+- **Codex:** symlink or copy to `~/.codex/skills/humanisateur`.
+- **Cursor, Windsurf, or similar editors:** add `SKILL.md` as a custom instruction or rules file, and point the agent at the `scripts/` and `reference/` directories.
+- **Any other agent:** include `SKILL.md` in the system prompt and make sure `scripts/` and `reference/` are accessible at runtime so the scorer can locate its word lists.
+
+The `agents/` folder contains interface configs for multiple providers, with a `default.yaml` fallback.
 
 ## Usage
 
+Once installed, the skill triggers on requests like "make this sound less robotic," "tighten this without changing the meaning," "clean up this AI-ish draft," "make this more natural for LinkedIn," or "adjust the tone for an academic audience."
+
+## Local script usage
+
 ```bash
 python3 scripts/score.py path/to/input.txt
+python3 scripts/score.py --text "Sample paragraph to review."
 ```
 
-Then follow the protocol in `SKILL.md` matching the word count.
+The report surfaces repetitive or overly generic wording, sentence and paragraph patterns that feel too uniform, stale openers and filler phrases, fake-casual "humanizer" patterns, and punctuation habits that dominate the page.
 
-## Signals measured
+## Repo layout
 
-| Signal | AI value | Human target |
-|---|---|---|
-| Word predictability (perplexity proxy) | low | high |
-| Burstiness (sentence-length std dev) | 3–5 | > 8 |
-| Vocab fingerprint (AI-overused words) | 10–48× baseline | ~0 |
-| Paragraph length CV | < 0.25 | > 0.5 |
-| Contractions / 100 words | 0 | ≈ 2 |
-| First-person / 500 words | 0–1 | 3–6 |
-| Em dashes / 500 words | 3–10 | ≤ 1 |
-
-## Files
-
-- `SKILL.md` — skill definition and full rewrite protocol
-- `scripts/score.py` — pure-stdlib scorer (no dependencies)
-- `reference/banned_words.txt` — 180+ AI-overused words
-- `reference/banned_phrases.txt` — 80+ flagged phrases
-- `reference/banned_openers.txt` — 45 sentence openers
-- `reference/humanizer_tells.txt` — fake-human patterns that now flag AS AI
-- `reference/replacements.md` — word replacement guide
-- `examples/` — before/after worked examples
+`SKILL.md` contains the workflow and editing guardrails. `scripts/score.py` is the diagnostic scorer. The `reference/` directory holds the word, phrase, opener, and tell lists, while `examples/` has sample inputs alongside their rewrites.
 
 ## License
 
