@@ -71,6 +71,35 @@ HEDGE_MARKERS = [
     "it may be","arguably","presumably","somewhat","relatively",
 ]
 
+# High-precision English grammar/usage rules. Order is display order.
+# Comment out any rule that false-positives on your corpus.
+# a/an rules are deliberately case-sensitive so "a UK firm" does not fire.
+GRAMMAR_RULES: list[tuple[str, "re.Pattern[str]"]] = [
+    ("repeated_word",
+        re.compile(r"\b([A-Za-z]{2,})\s+\1\b", re.IGNORECASE)),
+    ("a_before_vowel",
+        re.compile(r"\ba\s+(?!one\b|once\b|uni[a-z]+\b|use[a-z]+\b|Euro[a-z]+\b)[aeiou][a-z]+\b")),
+    # Note: fires on "an SQL", "an FBI" (initialisms that sound vowel). Drop if noisy.
+    ("an_before_consonant",
+        re.compile(r"\ban\s+(?!hour\b|honest[a-z]*\b|honou?r[a-z]*\b|heir[a-z]*\b|herb[a-z]*\b)[bcdfghjklmnpqrstvwxz][a-z]+\b")),
+    ("space_before_punct",
+        re.compile(r" +[,;:!?]")),
+    ("missing_space_after_comma",
+        re.compile(r"(?<!\d)[,;](?=[A-Za-z])")),
+    ("double_space_midword",
+        re.compile(r"(?<=[A-Za-z])  +(?=[A-Za-z])")),
+    ("modal_of",
+        re.compile(r"\b(?:could|should|would|must|might)\s+of\b", re.IGNORECASE)),
+    ("alot",
+        re.compile(r"\balot\b", re.IGNORECASE)),
+    ("your_youre",
+        re.compile(r"\byour\s+(?:welcome|going|gonna)\b", re.IGNORECASE)),
+    ("their_there",
+        re.compile(r"\btheir\s+(?:is|are|was|were)\b", re.IGNORECASE)),
+    ("its_contraction",
+        re.compile(r"\bits\s+(?:a|an|the|been|going|not|always|never)\b", re.IGNORECASE)),
+]
+
 def sentences(text: str) -> list[str]:
     text = text.strip()
     if not text:
@@ -226,6 +255,24 @@ def fragment_run_count(sents: list[str]) -> int:
             in_run = False
     return runs
 
+def grammar_error_hits(text: str) -> dict:
+    """High-precision English grammar/usage error counts.
+    Conservative by design — false positives poison the signal."""
+    counts: dict[str, int] = {}
+    samples: dict[str, list[str]] = {}
+    for key, pat in GRAMMAR_RULES:
+        matches = pat.findall(text)
+        if not matches:
+            continue
+        counts[key] = len(matches)
+        raw = [m if isinstance(m, str) else " ".join(m) for m in matches[:3]]
+        samples[key] = raw
+    return {
+        "counts":  counts,
+        "samples": samples,
+        "total":   sum(counts.values()),
+    }
+
 # ---------------------------------------------------------------------------
 # Scoring (0 = human, 10 = AI)
 # ---------------------------------------------------------------------------
@@ -301,6 +348,14 @@ def score_humanizer_penalty(humanizer_tells: int, fragment_runs: int,
         density_bonus = 3
     return min(15, tell_pen + frag_pen + density_bonus)
 
+def score_grammar(err_total: int, wc: int) -> int:
+    """0-10 on frequency of high-precision English grammar errors per 500 words.
+    Polarity matches other signals: more errors = higher (more AI-ish / sloppy).
+    Clean polished text (AI or human) scores 0 — a null contribution."""
+    if wc < 50: return 0
+    per500 = err_total * 500 / wc
+    return clamp(per500 * 10 / 8)
+
 # ---------------------------------------------------------------------------
 # Proper-noun + number detection (lightweight)
 # ---------------------------------------------------------------------------
@@ -351,6 +406,7 @@ def score_text(text: str) -> dict:
     h_tells      = humanizer_tell_hits(text)
     h_tell_total = sum(h_tells.values())
     frag_runs    = fragment_run_count(sents)
+    grammar      = grammar_error_hits(text)
 
     banned_per_500 = hits["word_total"] * 500 / wc if wc else 0
 
@@ -362,9 +418,13 @@ def score_text(text: str) -> dict:
     s6 = score_specificity(pn, nums, wc)
     s7 = score_voice(fp, ops, hedges, wc)
     humanizer_penalty = score_humanizer_penalty(h_tell_total, frag_runs, wc)
-    total = s1 + s2 + s3 + s4 + s5 + s6 + s7 + humanizer_penalty
+    s8 = score_grammar(grammar["total"], wc)
+    total = s1 + s2 + s3 + s4 + s5 + s6 + s7 + s8 + humanizer_penalty
 
-    # Scale: 7 signals × 10 = 70 + humanizer penalty max 15 = 85 max.
+    # Scale: 8 signals × 10 = 80 + humanizer penalty max 15 = 95 max.
+    # Bucket thresholds intentionally kept at the 85-max values: grammar
+    # reads 0 on polished text, so real-world bucket behaviour is preserved
+    # and cross-version score comparability is not silently broken.
     if   total <=18: verdict = "Natural Variation"
     elif total <=30: verdict = "Light Revision"
     elif total <=42: verdict = "Mixed / Needs Review"
@@ -382,6 +442,7 @@ def score_text(text: str) -> dict:
             "S5_register_uniformity": s5,
             "S6_specificity":         s6,
             "S7_voice":               s7,
+            "G_grammar_errors":       s8,
             "H_humanizer_penalty":    humanizer_penalty,
         },
         "measured": {
@@ -412,9 +473,12 @@ def score_text(text: str) -> dict:
             "emoji_count":              emos,
             "humanizer_tell_count":     h_tell_total,
             "fragment_run_count":       frag_runs,
+            "grammar_error_total":      grammar["total"],
+            "grammar_errors_per_500":   round(grammar["total"] * 500 / wc, 2) if wc else 0,
         },
         "banned_hits": hits,
         "humanizer_tells": h_tells,
+        "grammar_hits": grammar,
     }
 
 def render_report(r: dict) -> str:
@@ -430,7 +494,7 @@ def render_report(r: dict) -> str:
     lines.append("  HUMANISATEUR - WRITING PATTERN REPORT")
     lines.append("═" * 55)
     lines.append("")
-    lines.append(f"  OVERALL SCORE: {r['total']} / 85   [{r['verdict']}]")
+    lines.append(f"  OVERALL SCORE: {r['total']} / 95   [{r['verdict']}]")
     lines.append("")
     lines.append("  SIGNAL BREAKDOWN:")
     lines.append("  " + "─" * 51)
@@ -442,6 +506,7 @@ def render_report(r: dict) -> str:
         "S5_register_uniformity": "S5 Register Uniformity   ",
         "S6_specificity":         "S6 Specificity           ",
         "S7_voice":               "S7 Voice & Personality   ",
+        "G_grammar_errors":       "G  English Grammar Errors",
         "H_humanizer_penalty":    "H  Overprocessed Patterns ",
     }
     for k, v in sigs.items():
@@ -463,6 +528,7 @@ def render_report(r: dict) -> str:
     lines.append(f"  • Em dashes: {m['em_dash_count']} ({m['em_dashes_per_500']}/500 words, keep restrained in formal copy)")
     lines.append(f"  • Proper nouns: {m['proper_noun_count']}  |  Numbers: {m['number_count']}")
     lines.append(f"  • Curly quotes: {m['curly_quote_count']}  |  Bold: {m['bold_markers']}  |  Emojis: {m['emoji_count']}")
+    lines.append(f"  • Grammar errors: {m['grammar_error_total']} ({m['grammar_errors_per_500']}/500 words)")
 
     tells = r.get("humanizer_tells", {})
     if tells:
@@ -489,6 +555,15 @@ def render_report(r: dict) -> str:
         lines.append("  BANNED OPENERS FOUND:")
         for o, n in sorted(hits["openers"].items(), key=lambda x: -x[1]):
             lines.append(f"  • \"{o}\" ({n}×)")
+
+    g_hits = r.get("grammar_hits", {})
+    if g_hits.get("counts"):
+        lines.append("")
+        lines.append("  GRAMMAR ERRORS FOUND:")
+        for rule, n in sorted(g_hits["counts"].items(), key=lambda x: -x[1]):
+            examples = g_hits.get("samples", {}).get(rule, [])
+            ex = f"  e.g. {examples[0]!r}" if examples else ""
+            lines.append(f"  • {rule} ({n}×){ex}")
     lines.append("")
     lines.append("═" * 55)
     return "\n".join(lines)
